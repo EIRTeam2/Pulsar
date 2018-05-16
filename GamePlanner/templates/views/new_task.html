@@ -1,0 +1,18 @@
+{% extends 'blocks/base.html' %}
+{% load bulma_tags %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static "kanban/jkanban.min.css" %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <form action="" method="post">
+     {% csrf_token %}
+     {{ form|bulma }}
+     <div class="field">
+       <button type="submit" class="button is-primary">Submit</button>
+     </div>
+  </form>
+</div>
+{% endblock %}

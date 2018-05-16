@@ -2,10 +2,11 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .models import Project, ProjectUserData
-from .forms import CreateProjectForm
+from .forms import CreateProjectForm, TaskForm
 from django.views import generic
 
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 def test(request):
@@ -29,6 +30,14 @@ def create_project(request):
     else:
         form = CreateProjectForm()
     return render(request, 'views/new_project.html', {'form': form})
+@login_required
+def create_task(request, slug):
+    project = get_object_or_404(Project, slug=slug)
+    form = TaskForm(project=project)
+    if request.method == 'POST':
+        pass
+    else:
+        return render(request, 'views/new_task.html', {'project': project, 'form': form})
 
 class ProjectView(generic.DetailView):
     model = Project

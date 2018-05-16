@@ -5,11 +5,7 @@ import math
 import datetime
 class User(AbstractUser):
     bio = models.TextField(max_length=500, blank=True)
-class Platform(models.Model):
-    name = models.CharField(max_length=200)
 
-    def __str__(self):
-        return self.name
 
 class Project(models.Model):
     HOURS = "HOURS"
@@ -74,11 +70,18 @@ class Project(models.Model):
                 final_string = "0h"
 
             return final_string.format(hours_string, minutes_string).strip()
-
+    def __str__(self):
+        return self.name
+class Platform(models.Model):
+    name = models.CharField(max_length=200)
+    platform = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="platforms", null=True, blank=True)
+    def __str__(self):
+        return self.name
 
 class Milestone(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField('Project Description')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="milestones", null=True, blank=True)
     creation_date = models.DateTimeField('Creation Time', auto_now_add=True)
     starting_date = models.DateTimeField('Starting Date')
     due_date = models.DateTimeField('Due Date')
@@ -90,10 +93,11 @@ class ProjectUserData(models.Model):
     is_admin = models.BooleanField("Is an administrator", default=False)
     is_active = models.BooleanField("Is the user active", default=False)
     join_date = models.DateTimeField('Joining date', auto_now_add=True)
-
+    def __str__(self):
+        return self.user.username
 class Category(models.Model):
     name = models.CharField(max_length=200)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="categories")
     creation_date = models.DateTimeField('Creation Time', auto_now_add=True)
 
 class SubCategory(models.Model):
@@ -104,7 +108,7 @@ class SubCategory(models.Model):
 
 class Stage(models.Model):
     name = models.CharField(max_length=100)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="stages")
     is_unblocker = models.BooleanField()
     creation_date = models.DateTimeField('Creation date', auto_now_add=True)
 
@@ -114,13 +118,13 @@ class DesignElement(models.Model):
 
 class Task(models.Model):
     title = models.CharField(max_length=300)
-    description = models.TextField('Project Description')
+    description = models.TextField('Task Description')
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="tasks", blank=True, null=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     milestone = models.ForeignKey(Milestone, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     stage = models.ForeignKey(Stage, on_delete=models.CASCADE)
-    design_element = models.ForeignKey(DesignElement, on_delete=models.CASCADE)
+    design_element = models.ForeignKey(DesignElement, on_delete=models.CASCADE, related_name="design_elements")
     platform = models.ForeignKey(Platform, on_delete=models.CASCADE)
     estimated_cost = models.FloatField("Estimated time cost")
     final_cost = models.FloatField("Final cost")
