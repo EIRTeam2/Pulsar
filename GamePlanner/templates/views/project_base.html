@@ -1,0 +1,45 @@
+{% extends 'blocks/base.html' %}
+{% load bulma_tags %}
+{% block content %}
+
+
+<section class="columns is-fullheight">
+
+  <aside class="column is-2 is-narrow-mobile is-fullheight is-hidden-mobile" >
+    <ul class="menu-list">
+      <li>
+        <a href="#" class="is-active">
+          <span class="icon"><i class="fa fa-home"></i></span> Summary
+        </a>
+      </li>
+      <li>
+        <a href="#" class="">
+          <span class="icon"><i class="fa fa-th-large"></i></span> Boards
+        </a>
+
+          <li>
+            <a href="#">
+              <span class="icon is-small"><i class="fa fa-sitemap"></i></span> Game Design
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <span class="icon is-small"><i class="fa fa-bar-chart"></i></span> Metrics
+            </a>
+          </li>
+
+      </li>
+      <li>
+        <a href="#" class="">
+          <span class="icon"><i class="fa fa-info"></i></span> About
+        </a>
+      </li>
+    </ul>
+  </aside>
+  <div class="container columns">
+    {% block project_content %}
+    {% endblock %}
+</div>
+  </section>
+
+{% endblock %}

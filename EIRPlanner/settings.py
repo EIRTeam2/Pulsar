@@ -41,7 +41,12 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'GamePlanner',
+    'bulma',
 ]
+
+AUTH_USER_MODEL = 'GamePlanner.User'
+ACCOUNT_AUTHENTICATION_METHOD = 'username'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -66,6 +71,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+            ],
+                'builtins': [
+                    'django.contrib.staticfiles.templatetags.staticfiles',
             ],
         },
     },
@@ -132,3 +140,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = '/mnt/c/Users/EIREXE/EIRPlanner/EIRPlanner/static'

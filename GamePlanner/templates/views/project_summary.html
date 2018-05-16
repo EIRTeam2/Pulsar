@@ -1,0 +1,125 @@
+{% extends 'views/project_base.html' %}
+{% load staticfiles %}
+{% load user_tags %}
+{%  block project_content %}
+<div class="column">
+  <div class="tile is-ancestor">
+    <div class="tile is-3 is-vertical is-parent">
+      <div class="tile is-child box has-text-centered">
+        <img src="{% static "images/logo-small.png" %}">
+        <p class="title">
+          {{project.name}}
+        </p>
+        <p class="subtitle">
+          {{project.description}}
+        </p>
+        <p>
+          Owned by {{ project.owner|format_username }}
+        </p>
+        <div class="is-divider"></div>
+        {{project.info}}
+      </div>
+    </div>
+    <div class="tile is-9 is-parent is-vertical">
+      <div class="tile is-child box">
+        <progress class="progress is-success" value="{{project.get_final_cost}}" max="project.get_estimated_cost">60%</progress>
+        <nav class="level">
+          <div class="level-item has-text-centered">
+            <div>
+              <p class="heading">Total Tasks</p>
+              <p class="title">{{project.tasks.count}}</p>
+            </div>
+          </div>
+          <div class="level-item has-text-centered">
+            <div>
+              <p class="heading">Pending Tasks</p>
+              <p class="title">{{project.get_pending_tasks.count}}</p>
+            </div>
+          </div>
+          <div class="level-item has-text-centered">
+            <div>
+              <p class="heading">Closed Tasks</p>
+              <p class="title">{{project.get_closed_tasks.count}}</p>
+            </div>
+          </div>
+          <div class="level-item has-text-centered">
+            <div>
+              <p class="heading">Estimated {P}</p>
+              <p class="title">{{project.get_estimated_cost|format_cost:project}}</p>
+            </div>
+          </div>
+          <div class="level-item has-text-centered">
+            <div>
+              <p class="heading">Logged {P}</p>
+              <p class="title">{{project.get_final_cost|format_cost:project}}</p>
+            </div>
+          </div>
+          <div class="level-item has-text-centered">
+            <div>
+              <p class="heading">Remaining {P}</p>
+              <p class="title">{{project.get_remaining_cost|format_cost:project}}</p>
+            </div>
+          </div>
+        </nav>
+      </div>
+      <div class="tile is-child">
+        <div class="tile is-ancestor">
+          <div class="tile is-parent">
+            <div class="tile is-child box">
+              <p class="title"><span class="icon is-small"><i class="fa fa-user"></i></span> Members</p>
+              <div class="is-divider"></div>
+                {% for user_data in project.project_users_data.all %}
+                <div class="columns">
+                  <div class="column is-1">
+                    <img src="{% static "images/noavatar.png.jpg" %}" alt="">
+                  </div>
+                  <div class="column">
+                    <div>{{ user_data.user|format_username }}</div>
+                    {% if project.owner == user_data.user %}
+                    <span class="icon is-small"><i class="fa fa-suitcase"></i></span> Owner
+                    {% endif %}
+                  </div>
+                </div>
+                {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--
+  <div class="card">
+    <div class="card-content has-text-centered">
+      <img src="{% static "images/logo-small.png" %}">
+      <p class="title">
+        ERO-ONE Turbo
+      </p>
+      <p class="subtitle">
+        The world's finest erotic game
+      </p>
+      <p>
+        Owned by EIREXE
+      </p>
+    </div>
+    <footer class="card-footer">
+      <p class="card-footer-item">
+        <span>
+          <span class="icon is-small"><i class="fa fa-pencil"></i></span> Edit
+        </span>
+      </p>
+      <p class="card-footer-item">
+        <span>
+          <span class="icon is-small"><i class="fa fa-trash"></i></span> Delete
+        </span>
+      </p>
+    </footer>
+  </div>
+</div>-->
+{{project.name}}
+
+members:
+{% for user_data in project.project_users_data.all  %}
+{{user_data.user.username}}
+{% endfor %}
+
+{% endblock %}

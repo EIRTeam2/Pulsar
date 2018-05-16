@@ -2,5 +2,6 @@
 /static
 __pycache__/
 EIRPlanner/__pycache__/
+EIRPlanner/templatetags/__pycache__/
 env
 db.sqlite3

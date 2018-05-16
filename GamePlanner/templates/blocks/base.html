@@ -1,0 +1,66 @@
+{% extends 'bulma/base.html' %}
+
+{% load staticfiles %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static "bulma/bulma_divider.css" %}">
+{% endblock %}
+
+{% block header %}
+<style media="screen">
+  #myKanban {
+    overflow-x: auto;
+    width: 100%;
+  }
+</style>
+<nav class="navbar is-transparent">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="https://bulma.io">
+      <img src="{% static "images/logo-eirteam-small.png" %}" alt="Bulma: a modern CSS framework based on Flexbox" width="112" height="28">
+    </a>
+    <div class="navbar-burger burger" data-target="navbarExampleTransparentExample">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <div id="navbarExampleTransparentExample" class="navbar-menu">
+    <div class="navbar-start">
+      <div class="navbar-item has-dropdown is-hoverable">
+        {% if project %}
+          <a class="navbar-link" href="{% url 'project_summary' project.slug %}">
+            Project: {{ project.name }}
+          </a>
+        {% else %}
+          <a class="navbar-link" href="{% url 'project_list' %}">
+            Projects
+          </a>
+        {% endif %}
+        <div class="navbar-dropdown is-boxed">
+          {% if user.is_authenticated %}
+            {% for owned_project in user.owned_projects.all %}
+            <a class="navbar-item" href="{% url 'project_summary' owned_project.slug %}">
+              {{ owned_project.name }}
+            </a>
+            {% endfor %}
+          {% endif %}
+          <hr/>
+          <a class="navbar-item" href="{% url 'create_project' %}">
+            Create new project
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="navbar-end">
+
+    </div>
+  </div>
+</nav>
+{% endblock %}
+
+{% block javascript %}
+  <script src="https://unpkg.com/vue"></script>
+{% endblock %}
