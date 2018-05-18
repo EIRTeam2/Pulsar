@@ -16,8 +16,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 import allauth
+from GamePlanner.api import TaskResource, ProjectResource
+
+task_resource = TaskResource()
+project_resource = ProjectResource()
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('', include('GamePlanner.urls')),
+    path('api/', include(task_resource.urls)),
+    path('api/', include(project_resource.urls)),
+
 ]

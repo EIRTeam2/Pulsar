@@ -1,45 +1,134 @@
 {% extends 'blocks/base.html' %}
 {% load bulma_tags %}
+{% load user_tags %}
+
+{% block extra_css %}
+<style media="screen">
+html,body {
+height: 100%;
+background-color: #fff;
+}
+.aside {
+display:block;
+background-color: #F9F9F9;
+border-right: 1px solid #DEDEDE;
+}
+.aside .compose {
+height: 95px;
+margin:0 -10px;
+padding: 25px 30px;
+}
+.aside .compose .button {
+}
+.aside .compose .button .compose {
+font-size: 14px;
+font-weight: 700;
+}
+.aside .main {
+padding: 40px;
+padding-top: 0;
+color: #6F7B7E;
+}
+.aside .title {
+color: #6F7B7E;
+font-size: 12px;
+font-weight: bold;
+text-transform: uppercase;
+}
+.aside .main .item {
+display: block;
+padding: 10px 0;
+margin: 0 -50px;
+padding-left: 50px;
+color: #6F7B7E;
+}
+.aside .main .item.active {
+background-color: #F1F1F1;
+margin: 0 -50px;
+padding-left: 50px;
+}
+.aside .main .item:active,.aside .main .item:hover {
+background-color: #F2F2F2;
+margin: 0 -50px;
+padding-left: 50px;
+}
+.aside .main .icon {
+font-size: 19px;
+padding-right: 30px;
+color: #A0A0A0;
+}
+.aside .main .name {
+font-size: 15px;
+color: #5D5D5D;
+font-weight: 500;
+}
+#base-section {
+  padding-top: 13px;
+  padding-left: 0px;
+  padding-bottom: 0px;
+}
+#base-container {
+  margin-left: 0;
+}
+</style>
+{% block project_css %}
+
+{% endblock project_css %}
+{% endblock extra_css %}
 {% block content %}
+<div class="columns">
+<aside class="column is-2 aside hero is-fullheight">
+    <div>
+        <div class="compose has-text-centered">
+          <a class="button is-block" id="showModal">
+            <span class="icon">
+              <i class="fa fa-plus" aria-hidden="true"></i>
+            </span>
+            <span>New Task</span>
+          </a>
+        </div>
+        <div class="main">
+            <a href="{% url 'project_summary' project.slug %}" class="item active"><span class="icon"><i class="fa fa-home"></i></span><span class="name">Summary</span></a>
+            <a href="{% url 'kanban' project.slug %}" class="item"><span class="icon"><i class="fa fa-th-large"></i></span><span class="name">Boards</span></a>
+            <a href="#" class="item"><span class="icon"><i class="fa fa-sitemap"></i></span><span class="name">Game Design</span></a>
+            <a href="#" class="item"><span class="icon"><i class="fa fa-folder-o"></i></span><span class="name">Folders</span></a>
+        </div>
+    </div>
+</aside>
+<div class="modal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">New Task</p>
+      <button class="delete" aria-label="close"></button>
+    </header>
 
-
-<section class="columns is-fullheight">
-
-  <aside class="column is-2 is-narrow-mobile is-fullheight is-hidden-mobile" >
-    <ul class="menu-list">
-      <li>
-        <a href="#" class="is-active">
-          <span class="icon"><i class="fa fa-home"></i></span> Summary
-        </a>
-      </li>
-      <li>
-        <a href="#" class="">
-          <span class="icon"><i class="fa fa-th-large"></i></span> Boards
-        </a>
-
-          <li>
-            <a href="#">
-              <span class="icon is-small"><i class="fa fa-sitemap"></i></span> Game Design
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <span class="icon is-small"><i class="fa fa-bar-chart"></i></span> Metrics
-            </a>
-          </li>
-
-      </li>
-      <li>
-        <a href="#" class="">
-          <span class="icon"><i class="fa fa-info"></i></span> About
-        </a>
-      </li>
-    </ul>
-  </aside>
-  <div class="container columns">
-    {% block project_content %}
-    {% endblock %}
+    <section class="modal-card-body">
+      <div class="content">
+      <form action="{% url 'create_task' project.slug %}" id="create_task_form" method="post">
+         {% csrf_token %}
+         {{ project|get_task_form|bulma }}
+      </form>
+    </div>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button is-success" id="add-task-button">Add Task</button>
+      <button class="button" id="cancel-button">Cancel</button>
+    </footer>
+  </div>
 </div>
-  </section>
-
+{% block project_content %}
+{% endblock project_content %}
+</div>
 {% endblock %}
+{% block extra_javascript %}
+<script type="text/javascript">
+  $("#add-task-button").click( function() {
+    $("#create_task_form").submit();
+  });
+</script>
+{% block project_javascript %}
+
+{% endblock project_javascript %}
+
+{% endblock extra_javascript %}

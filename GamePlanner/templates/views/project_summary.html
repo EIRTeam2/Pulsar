@@ -1,8 +1,36 @@
 {% extends 'views/project_base.html' %}
 {% load staticfiles %}
 {% load user_tags %}
+
+{% block project_css %}
+<link rel="stylesheet" href="{% static "kanban/jkanban.min.css" %}">
+<style>
+  .header-pending {
+    background-color: #AAAAAA;
+    color: #FFF;
+  }
+  .header-in-progress {
+    background-color: #2780E3;
+    color: #FFF;
+  }
+  .header-testing {
+    background-color: #E9262B;
+    color: #FFF;
+  }
+  .header-completed {
+    background-color: #3FB618;
+    color: #FFF;
+  }
+  .task-list {
+    overflow-x: auto;
+  }
+</style>
+
+{% endblock %}
+
 {%  block project_content %}
 <div class="column">
+  <div class="container" style="padding-right: 1.0%;">
   <div class="tile is-ancestor">
     <div class="tile is-3 is-vertical is-parent">
       <div class="tile is-child box has-text-centered">
@@ -20,9 +48,9 @@
         {{project.info}}
       </div>
     </div>
-    <div class="tile is-9 is-parent is-vertical">
+    <div class="tile  is-parent is-vertical">
       <div class="tile is-child box">
-        <progress class="progress is-success" value="{{project.get_final_cost}}" max="project.get_estimated_cost">60%</progress>
+        <progress class="progress is-success" value="{{project.get_project_completion}}" max="1.0">60%</progress>
         <nav class="level">
           <div class="level-item has-text-centered">
             <div>
@@ -87,39 +115,6 @@
       </div>
     </div>
   </div>
-  <!--
-  <div class="card">
-    <div class="card-content has-text-centered">
-      <img src="{% static "images/logo-small.png" %}">
-      <p class="title">
-        ERO-ONE Turbo
-      </p>
-      <p class="subtitle">
-        The world's finest erotic game
-      </p>
-      <p>
-        Owned by EIREXE
-      </p>
-    </div>
-    <footer class="card-footer">
-      <p class="card-footer-item">
-        <span>
-          <span class="icon is-small"><i class="fa fa-pencil"></i></span> Edit
-        </span>
-      </p>
-      <p class="card-footer-item">
-        <span>
-          <span class="icon is-small"><i class="fa fa-trash"></i></span> Delete
-        </span>
-      </p>
-    </footer>
-  </div>
-</div>-->
-{{project.name}}
-
-members:
-{% for user_data in project.project_users_data.all  %}
-{{user_data.user.username}}
-{% endfor %}
-
+</div>
+</div>
 {% endblock %}

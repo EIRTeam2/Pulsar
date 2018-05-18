@@ -25,7 +25,7 @@ SECRET_KEY = 'lqta7gqw)vwqn(t$@)ms0-xxk%z+fl8c=gms*n9j46m2!@wa@0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["192.168.1.218", "127.0.0.1"]
 
 
 # Application definition
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'GamePlanner',
     'bulma',
+    'tastypie',
 ]
 
 AUTH_USER_MODEL = 'GamePlanner.User'
@@ -71,6 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'GamePlanner.context_processors.global_forms'
             ],
                 'builtins': [
                     'django.contrib.staticfiles.templatetags.staticfiles',

@@ -1,16 +1,20 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from .models import Project, ProjectUserData
+from .models import Project, ProjectUserData, Task
 from .forms import CreateProjectForm, TaskForm
 from django.views import generic
-
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core import serializers
 
 # Create your views here.
 def test(request):
-    return render(request, 'test.html')
+    return render(request, 'views/task_list.html')
+
+
 
 @login_required
 def create_project(request):
@@ -30,14 +34,28 @@ def create_project(request):
     else:
         form = CreateProjectForm()
     return render(request, 'views/new_project.html', {'form': form})
+
+
+class CreateTaskView(LoginRequiredMixin, generic.CreateView):
+    model = Task
+    fields = ["title", "description", "project", "milestone", "category", "stage",
+    "platform", "estimated_cost", "final_cost", "due_date", "assigned_user", "design_element"]
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.creator = self.request.user
+        obj.save()
+        return HttpResponseRedirect(self.get_success_url())
+
 @login_required
-def create_task(request, slug):
+def kanban(request, slug):
     project = get_object_or_404(Project, slug=slug)
-    form = TaskForm(project=project)
     if request.method == 'POST':
         pass
     else:
-        return render(request, 'views/new_task.html', {'project': project, 'form': form})
+        tasks = project.tasks.all()
+        tasks = serializers.serialize('json', tasks)
+        return render(request, 'views/task_list.html', {'project': project, 'tasks': tasks})
 
 class ProjectView(generic.DetailView):
     model = Project
