@@ -62,7 +62,9 @@ BOWER_PATH = '/usr/local/bin/bower'
 
 BOWER_INSTALLED_APPS = (
     'jquery',
-    'jqTree'
+    'jqTree',
+    'showdown',
+    'jquery.rest'
 )
 
 MIDDLEWARE = [
