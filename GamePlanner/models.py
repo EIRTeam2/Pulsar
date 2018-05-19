@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from .slugify import unique_slugify
+from simplemde.fields import SimpleMDEField
 import math
 import datetime
 class User(AbstractUser):
@@ -20,7 +21,7 @@ class Project(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owned_projects", null=True, blank=True)
     slug = models.SlugField(max_length=100, null=True, blank=True)
     creation_date = models.DateTimeField('Creation Time', auto_now_add=True)
-    description = models.TextField('Project Description')
+    description = SimpleMDEField('Project Description')
     project_info = models.TextField('General Project Information')
     cost_metric = models.CharField(max_length=20, choices=COST_METRIC_CHOICES, default=HOURS)
     def save(self, *args, **kwargs):
@@ -77,7 +78,8 @@ class Project(models.Model):
             if task.stage == task.COMPLETED:
                 project_completion += 1.0
 
-        project_completion = project_completion / self.tasks.all().count()
+        if self.tasks.all().count() > 0:
+            project_completion = project_completion / self.tasks.all().count()
         return project_completion
     def __str__(self):
         return self.name
@@ -89,7 +91,7 @@ class Platform(models.Model):
 
 class Milestone(models.Model):
     name = models.CharField(max_length=200)
-    description = models.TextField('Project Description')
+    description = SimpleMDEField('Project Description')
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="milestones", null=True, blank=True)
     creation_date = models.DateTimeField('Creation Time', auto_now_add=True)
     starting_date = models.DateTimeField('Starting Date', blank=True, null=True)
@@ -119,8 +121,15 @@ class SubCategory(models.Model):
 
 class DesignElement(models.Model):
     name = models.CharField(max_length=300)
-
-
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name="children")
+    description = SimpleMDEField("Element description", null=True, blank=True)
+    def serializable_object(self):
+        obj = {'name': self.name, 'children': [], 'id': self.pk}
+        for child in self.children.all():
+            obj['children'].append(child.serializable_object())
+        return obj
+    def __str__(self):
+        return self.name
 class Task(models.Model):
 
     PLANNED = "PLANNED"
@@ -135,7 +144,7 @@ class Task(models.Model):
     )
 
     title = models.CharField(max_length=300)
-    description = models.TextField('Task Description')
+    description = SimpleMDEField('Task Description')
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="tasks", blank=True, null=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     milestone = models.ForeignKey(Milestone, on_delete=models.CASCADE)

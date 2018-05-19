@@ -1,0 +1,70 @@
+{% extends 'views/project_base.html' %}
+{% load staticfiles %}
+{% load user_tags %}
+
+{% block project_css %}
+<link rel="stylesheet" href="{% static 'styles/jqtree.css' %}">
+{% endblock %}
+
+{%  block project_content %}
+    <div class="column is-6">
+      <div id="tree1">
+
+      </div>
+    </div>
+    <div class="column is-6" style="background-color: #F9F9F9;">
+      <div id="display-description">
+      </div>
+    </div>
+{% endblock %}
+
+{% block project_javascript %}
+<script src="{% static 'scripts/tree.jquery.js' %}" charset="utf-8"></script>
+<script type="module" src="{% static "scripts/jquery.rest.min.js" %}"></script>
+<script type="text/javascript">
+
+  $(function() {
+    var client = new $.RestClient('/api/', {"ajax": ajaxOption});
+    client.add("design_element", {stringifyData: true})
+    var tree_data = {{nodes|safe}}
+    $('#tree1').tree({
+        data: tree_data,
+        dragAndDrop: true,
+    });
+    $('#tree1').on(
+    'tree.move',
+    function(event) {
+        event.preventDefault();
+        event.move_info.do_move();
+        console.log('moved_node', event.move_info.moved_node);
+
+        // Parent changed!!!!
+
+        console.log($.isEmptyObject(event.move_info.moved_node.parent.id))
+        if (event.move_info.moved_node.parent.id === parseInt(event.move_info.moved_node.parent.id)) {
+          url = "/api/design_element/" + event.move_info.moved_node.parent.id + "/"
+          client.design_element.update(event.move_info.moved_node.id, {parent: url})
+
+        } else {
+        client.design_element.update(event.move_info.moved_node.id, {parent: null})
+
+        }
+
+
+
+    }
+);
+
+// bind 'tree.click' event
+$('#tree1').on(
+    'tree.click',
+    function(event) {
+      client.design_element.read(event.node.id).done(function (data){
+        console.log(data.description);
+      });
+
+    }
+);
+});
+</script>
+{% endblock %}

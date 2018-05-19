@@ -44,10 +44,21 @@ INSTALLED_APPS = [
     'GamePlanner',
     'bulma',
     'tastypie',
+    'simplemde',
+    'djangobower'
 ]
-
 AUTH_USER_MODEL = 'GamePlanner.User'
 ACCOUNT_AUTHENTICATION_METHOD = 'username'
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'djangobower.finders.BowerFinder',
+]
+
+BOWER_COMPONENTS_ROOT = '/mnt/c/Users/EIREXE/EIRPlanner/components/'
+
+BOWER_PATH = '/usr/bin/bower'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

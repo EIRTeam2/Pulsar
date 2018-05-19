@@ -38,22 +38,23 @@
 
 <script type="text/javascript" type="module">
 
-var starting_tasks = {{tasks|safe}}
 
+
+var starting_tasks = {{tasks|safe}}
 var boards2 = [
     {
         "id"    : "board-pending",               // id of the board
         "title" : "Pending",              // title of the board
         "class" : "header-pending",        // css classes to add at the title
-        "dragTo": ['another-board-id'],   // array of ids of boards where items can be dropped (default: [])
-        "item"  : [                           // item of this board
+        "dragTo": ["board-in-progress", "board-pending", "board-testing", "board-completed"],   // array of ids of boards where items can be dropped (default: [])
+        "item"  : [                            // item of this board
         ]
     },
     {
         "id"    : "board-in-progress",               // id of the board
         "title" : "In Progress",              // title of the board
         "class" : "header-in-progress",        // css classes to add at the title
-        "dragTo": ['another-board-id'],   // array of ids of boards where items can be dropped (default: [])
+        "dragTo": ["board-in-progress", "board-pending", "board-testing", "board-completed"],   // array of ids of boards where items can be dropped (default: [])
         "item"  : [                           // item of this board
         ]
     },
@@ -61,7 +62,7 @@ var boards2 = [
         "id"    : "board-testing",               // id of the board
         "title" : "Testing",              // title of the board
         "class" : "header-testing",        // css classes to add at the title
-        "dragTo": ['another-board-id'],   // array of ids of boards where items can be dropped (default: [])
+        "dragTo": ["board-in-progress", "board-pending", "board-testing", "board-completed"],   // array of ids of boards where items can be dropped (default: [])
         "item"  : [                           // item of this board
         ]
     },
@@ -69,31 +70,41 @@ var boards2 = [
         "id"    : "board-completed",               // id of the board
         "title" : "Completed",              // title of the board
         "class" : "header-completed",        // css classes to add at the title
-        "dragTo": ['another-board-id'],   // array of ids of boards where items can be dropped (default: [])
+        "dragTo": ["board-in-progress", "board-pending", "board-testing", "board-completed"  ],   // array of ids of boards where items can be dropped (default: [])
         "item"  : [                           // item of this board
         ]
     },
 ];
 
+
+
 var kanban = new jKanban({
     element         : '#task-list',                                           // selector of the kanban container
     responsivePercentage: true,                                    // if it is true I use percentage in the width of the boards and it is not necessary gutter and widthBoard
     boards          : boards2,                                           // json of boards
-    dragBoards      : true,                                         // the boards are draggable, if false only item can be dragged
+    dragBoards      : false,                                         // the boards are draggable, if false only item can be dragged
     addItemButton   : false,                                        // add a button to board for easy item creation
     buttonContent   : '+',                                          // text or html content of the board button
-    click           : function (el) {},                             // callback when any board's item are clicked
+    click           : function (el) {
+      console.log("click")
+    },                             // callback when any board's item are clicked
     dragEl          : function (el, source) {},                     // callback when any board's item are dragged
     dragendEl       : function (el) {},                             // callback when any board's item stop drag
-    dropEl          : function (el, target, source, sibling) {},    // callback when any board's item drop in a board
+    dropEl          : function (el, target, source, sibling) {
+      var client = new $.RestClient('/api/', {"ajax": ajaxOption});
+      console.log(target.parentElement.dataset.id)
+      client.add("task", {stringifyData: true})
+      console.log(parseInt(el.dataset.eid))
+      client.task.update(parseInt(el.dataset.eid), {stage: stage_dict_swapped[target.parentElement.dataset.id]})
+    },    // callback when any board's item drop in a board
     dragBoard       : function (el, source) {},                     // callback when any board stop drag
     dragendBoard    : function (el) {},                             // callback when any board stop drag
     buttonClick     : function(el, boardId) {}                      // callback when the board's button is clicked
 })
 
-function generate_board_item(task) {
+function generate_board_item(task, pk) {
   var item = {
-      "id"    : task.id,
+      "id"   : pk,
       "title" : task.title
   }
   return item
@@ -106,12 +117,25 @@ var stage_dict = {
   "COMPLETED": "board-completed",
 }
 
+function swap(json){
+  var ret = {};
+  for(var key in json){
+    ret[json[key]] = key;
+  }
+  return ret;
+}
+
+var stage_dict_swapped = swap(stage_dict)
+
+
 $(document).ready(function() {
 
   for (var task_info_id in starting_tasks) {
     var task_info = starting_tasks[task_info_id]
-    var board_item = generate_board_item(task_info.fields)
+    var board_item = generate_board_item(task_info.fields, task_info.pk)
     kanban.addElement(stage_dict[task_info.fields.stage], board_item)
+    var element = kanban.findElement(task_info.pk)
+
   }
   /*
   var client = new $.RestClient('/api/');

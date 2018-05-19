@@ -16,10 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 import allauth
-from GamePlanner.api import TaskResource, ProjectResource
+from GamePlanner.api import TaskResource, ProjectResource, DesignElementResource
 
 task_resource = TaskResource()
 project_resource = ProjectResource()
+design_element_resource = DesignElementResource()
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,5 +28,6 @@ urlpatterns = [
     path('', include('GamePlanner.urls')),
     path('api/', include(task_resource.urls)),
     path('api/', include(project_resource.urls)),
-
+    path('api/', include(design_element_resource.urls)),
+    path('markdownx/', include('markdownx.urls')),
 ]

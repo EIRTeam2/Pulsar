@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from .models import Project, ProjectUserData, Task
+from .models import Project, ProjectUserData, Task, DesignElement
 from .forms import CreateProjectForm, TaskForm
 from django.views import generic
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core import serializers
-
+import json
 # Create your views here.
 def test(request):
     return render(request, 'views/task_list.html')
@@ -36,11 +36,12 @@ def create_project(request):
     return render(request, 'views/new_project.html', {'form': form})
 
 
+
 class CreateTaskView(LoginRequiredMixin, generic.CreateView):
     model = Task
     fields = ["title", "description", "project", "milestone", "category", "stage",
     "platform", "estimated_cost", "final_cost", "due_date", "assigned_user", "design_element"]
-
+    template_name="views/new_task.html"
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.creator = self.request.user
@@ -60,6 +61,14 @@ def kanban(request, slug):
 class ProjectView(generic.DetailView):
     model = Project
     template_name = 'views/project_summary.html'
+@login_required
+def game_design(request, slug):
+    project = get_object_or_404(Project, slug=slug)
+    nodes = []
+    for design_element in DesignElement.objects.filter(parent=None):
+        nodes.append(design_element.serializable_object())
+
+    return render(request, 'views/project_game_design.html', {'project': project, 'nodes':json.dumps(nodes)})
 
 class ProjectListView(generic.ListView):
     template_name = 'views/project_list.html'
