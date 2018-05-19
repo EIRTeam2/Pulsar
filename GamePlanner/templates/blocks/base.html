@@ -68,8 +68,8 @@
 {% endblock %}
 {% block javascript %}
   <script src="https://unpkg.com/vue"></script>
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js" charset="utf-8"></script>
-  <script type="module" src="{% static "scripts/jquery.rest.min.js" %}"></script>
+  <script src="{% static 'jquery/dist/jquery.min.js' %}" charset="utf-8"></script>
+  <script type="module" src="{% static "jpillora/jquery.rest/dist/1/jquery.rest.min.js" %}"></script>
   <script src="{% static 'scripts/global.js' %}" charset="utf-8"></script>
 <script type="text/javascript">
   $("#showModal").click(function() {

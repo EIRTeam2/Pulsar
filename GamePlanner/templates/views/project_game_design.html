@@ -3,7 +3,7 @@
 {% load user_tags %}
 
 {% block project_css %}
-<link rel="stylesheet" href="{% static 'styles/jqtree.css' %}">
+<link rel="stylesheet" href="{% static 'jqTree/jqtree.css' %}">
 {% endblock %}
 
 {%  block project_content %}
@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block project_javascript %}
-<script src="{% static 'scripts/tree.jquery.js' %}" charset="utf-8"></script>
+<script src="{% static 'jqTree/tree.jquery.js' %}" charset="utf-8"></script>
 <script type="module" src="{% static "scripts/jquery.rest.min.js" %}"></script>
 <script type="text/javascript">
 

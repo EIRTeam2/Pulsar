@@ -58,7 +58,12 @@ STATICFILES_FINDERS = [
 
 BOWER_COMPONENTS_ROOT = '/mnt/c/Users/EIREXE/EIRPlanner/components/'
 
-BOWER_PATH = '/usr/bin/bower'
+BOWER_PATH = '/usr/local/bin/bower'
+
+BOWER_INSTALLED_APPS = (
+    'jquery',
+    'jqTree'
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
