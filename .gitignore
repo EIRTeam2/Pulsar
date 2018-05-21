@@ -7,3 +7,5 @@ env
 db.sqlite3
 components/
 node_modules/
+yarn-error
+yarn.lock
