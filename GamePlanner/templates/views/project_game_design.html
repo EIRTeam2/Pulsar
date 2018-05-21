@@ -1,33 +1,225 @@
 {% extends 'views/project_base.html' %}
 {% load staticfiles %}
+{% load compress %}
 {% load user_tags %}
 
 {% block project_css %}
 <link rel="stylesheet" href="{% static 'jqTree/jqtree.css' %}">
+<link rel="stylesheet" href="{% static 'simplemde/dist/simplemde.min.css' %}">
+<link rel="stylesheet" href="{% static 'dragula.js/dist/dragula.min.css' %}">
+<style media="screen">
+
+.drag-container {
+  width: 400px;
+  margin: 0 auto;
+}
+
+.nested {
+  border: dashed 1px;
+}
+
+.item {
+  padding: 8px;
+}
+
+html, body, #app {
+  height: 100%;
+}
+#app {
+  min-height: 100%;
+  //display: flex;
+  //flex-direction: column;
+}
+.CodeMirror {
+height: 300px;
+
+}
+#element-viewer {
+overflow-y: auto;
+  height: 90vh;
+}
+
+
+</style>
+
+<style media="screen">
+  .editable-field:hover {
+    background-color: #F9F9F9;
+
+  }
+  .editable-icon:hover {
+    cursor: pointer;
+  }
+  .editable-icon {
+    visibility: hidden;
+  }
+  .editable-field {
+    padding: 2px;
+  }
+  .editable-field:hover .editable-icon {
+    visibility: visible;
+  }
+  .vddl-list, .vddl-draggable {
+    position: relative;
+  }
+  .vddl-list {
+  min-height: 44px;
+}
+.vddl-dragging{
+  opacity: 0.7;
+}
+
+.vddl-dragging-source {
+  display: none;
+}
+</style>
 {% endblock %}
 
 {%  block project_content %}
-    <div class="column is-6">
-      <div id="tree1">
+    <div class="column is-6 tovue">
 
+        <!--
+        <div class="nested">
+          <div class="item">
+            Item 1
+              <tree-node v-for="node in children" v-bind:nodes="node.children">
+              </tree-node>
+          </div>
+        </div>-->
+        <!--
+        <vddl-draggable class="panel__body--item" :key="node.id"
+          :draggable="node"
+          :index="index"
+          :wrapper="nodes"
+          effect-allowed="move">
+          <details class="box">
+            <summary>
+
+            List [[node.name]]
+          </summary>
+                <vddl-list :list="node.children" :horizontal="false">
+                    <tree-item v-for="(child, c_index) in node.children" :index="c_index" :nodes="node.children" :key="child.id" :node="child">
+
+                    </tree-item>
+                    <vddl-placeholder class="red">Custom placeholder</vddl-placeholder>
+                </vddl-list>
+          </details>
+        </vddl-draggable>-->
+<tree-item v-for="(node, index) in nodes" :key="node.id" :node="node" :nodes="nodes"></tree-item>
       </div>
-    </div>
-    <div class="column is-6" style="background-color: #F9F9F9;">
-      <div id="display-description">
+    <div class="column is-6 tovue" id="element-viewer" style="padding-right: 2%;  " style="background-color: #F9F9F9; overflow: auto;">
+      <div id="design-element-toolbar" class="level is-hidden">
+        <div class="level-left">
+          <div v-if="editing">
+            <editable-input v-for="property in property_list"  v-bind:property="property" v-bind:editing_object="editing_object" v-bind:key="property.name"></editable-input>
+        </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <a class="button" id="design-element-edit">Edit</a>
+          </div>
+        </div>
       </div>
+
+      <div class="content" id="display-description">
+      </div>
+      <div id="description-editor-wrapper" class="is-hidden content">
+        <textarea class="is-hidden" id="description-editor">
+        </textarea>
+        <a class="button is-primary" id="description-save-button">Save</a>
+      </div>
+
     </div>
 {% endblock %}
 
 {% block project_javascript %}
 <script src="{% static 'jqTree/tree.jquery.js' %}" charset="utf-8"></script>
-<script type="module" src="{% static "scripts/jquery.rest.min.js" %}"></script>
-<script type="text/javascript">
-
+<script src="{% static 'showdown/dist/showdown.min.js' %}" charset="utf-8"></script>
+<script src="{% static 'simplemde/dist/simplemde.min.js' %}" charset="utf-8"></script>
+{% compress js %}
+<script  type="module" >
+import Vddl from 'vddl';
+import Vue from "vue";
   $(function() {
+    Vue.use(Vddl);
+    var tree_data = {{nodes|safe}}
+    console.log(tree_data)
+
+    Vue.component('tree-item', {
+    data: function () {
+      return {
+        editing: false
+
+      }
+    },
+    props: ["node", "nodes", "index"],
+    delimiters: ["[[","]]"],
+    template: '<vddl-draggable class="panel__body--item" :key="node.id" :draggable="node" :index="index" :wrapper="nodes" effect-allowed="move"> <details class="box"> <summary> List [[node.name]] </summary> <vddl-list :list="node.children" :horizontal="false"> <tree-item v-for="(child, c_index) in node.children" :index="c_index" :nodes="node.children" :key="child.id" :node="child"> </tree-item> <vddl-placeholder class="red">Custom placeholder</vddl-placeholder> </vddl-list> </details> </vddl-draggable>',
+  });
+
+/*
+    Vue.component('editable-input', {
+    data: function () {
+      return {
+        editing: false
+
+      }
+    },
+    props: ["property", "editing_object"],
+    delimiters: ["[[","]]"],
+    template: '<div class="editable-field"> <p> <strong>[[property.display_name]]</strong> <span class="icon editable-icon" @click="enableEditing"> <i class="fa fa-pencil "> </i> </span> </p><div v-if="!editing" class="content"> [[property.value]] </div><input v-if="editing" ref="user_input" v-model="property.value" class="input" type="text" placeholder="Text input" v-on:keyup.enter="saveEdit" v-on:keyup.esc="disableEditing"> <p v-if="editing" class="has-text-right is-size-7"> Enter to save | ESC to cancel </p></div>',
+    methods: {
+      enableEditing: function(){
+        this.tempValue = this.value;
+        this.editing = true;
+      },
+      disableEditing: function(){
+        this.editing = false;
+        this.property.value = this.property.pre_edit_value
+      },
+      saveEdit: function(){
+        // However we want to save it to the database
+        var client = new $.RestClient('/api/', {"ajax": ajaxOption});
+        client.add('resource', {stringifyData: true, url:this.editing_object.resource_type})
+        var update = {}
+        update[this.property.field] = this.property.value
+        client.resource.update(this.editing_object.id, update)
+        this.editing = false;
+      }
+    }
+  });
+  */
+
+    var app = new Vue({
+      el: '.tovue',
+      delimiters: ["[[","]]"],
+      data: {
+        editing_object: [],
+        property_list: [{
+          "display_name": "Name",
+          "field": "name",
+        }],
+        "editing": false,
+        "nodes": {{nodes|safe}},
+        "lists": {
+          "A": [
+            {
+              "id": 1,
+              "label": "Item A1"
+            },
+            {
+              "id": 2,
+              "label": "Item A2"
+            },
+          ]
+          }
+      },
+    })
     var client = new $.RestClient('/api/', {"ajax": ajaxOption});
     client.add("design_element", {stringifyData: true})
-    var tree_data = {{nodes|safe}}
-    $('#tree1').tree({
+
+
+/*    $('#tree1').tree({
         data: tree_data,
         dragAndDrop: true,
     });
@@ -54,17 +246,62 @@
 
     }
 );
-
+*/
+var simplemde = new SimpleMDE({ element: $("#description-editor")[0] });
+var current_design_element = []
 // bind 'tree.click' event
+
+function edit_current_element() {
+  simplemde.value(current_design_element.description)
+  $("#display-description").addClass("is-hidden")
+  $("#description-editor-wrapper").removeClass("is-hidden")
+  simplemde.codemirror.refresh();
+}
+
+function finish_editing() {
+  $("#display-description").removeClass("is-hidden")
+  $("#description-editor-wrapper").addClass("is-hidden")
+}
+
 $('#tree1').on(
     'tree.click',
     function(event) {
       client.design_element.read(event.node.id).done(function (data){
-        console.log(data.description);
+        var converter = new showdown.Converter()
+        var html = converter.makeHtml(data.description);
+        $("#display-description").html(html);
+        current_design_element = data
+        app.edit_object("design_element", data)
+
+        $("#design-element-toolbar").removeClass("is-hidden");
       });
 
     }
 );
+
+$("#design-element-edit").click( function(event) {
+    edit_current_element()
+})
+
+
+
+$("#description-save-button").click( function(event) {
+  client.design_element.update(current_design_element.id, {description: simplemde.value()})
+  current_design_element.description = simplemde.value()
+  var converter = new showdown.Converter()
+  var html = converter.makeHtml(current_design_element.description);
+  $("#display-description").html(html);
+  finish_editing()
+})
+
 });
+
+
+
+</script>
+{% endcompress %}
+<script type="text/javascript">
+
+
 </script>
 {% endblock %}

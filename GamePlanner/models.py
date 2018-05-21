@@ -124,7 +124,7 @@ class DesignElement(models.Model):
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name="children")
     description = SimpleMDEField("Element description", null=True, blank=True)
     def serializable_object(self):
-        obj = {'name': self.name, 'children': [], 'id': self.pk}
+        obj = {'name': self.name, 'children': [], 'description': self.description, 'id': self.pk}
         for child in self.children.all():
             obj['children'].append(child.serializable_object())
         return obj

@@ -5,15 +5,16 @@
 {% load user_tags %}
 {% block extra_css %}
   <link rel="stylesheet" href="{% static "bulma/bulma_divider.css" %}">
+  <style media="screen">
+    #myKanban {
+      overflow-x: auto;
+      width: 100%;
+    }
+  </style>
 {% endblock %}
 
 {% block header %}
-<style media="screen">
-  #myKanban {
-    overflow-x: auto;
-    width: 100%;
-  }
-</style>
+
 <nav class="navbar is-transparent">
   <div class="navbar-brand">
     <a class="navbar-item" href="https://bulma.io">
@@ -67,7 +68,6 @@
 {% block footer %}
 {% endblock %}
 {% block javascript %}
-  <script src="https://unpkg.com/vue"></script>
   <script src="{% static 'jquery/dist/jquery.min.js' %}" charset="utf-8"></script>
   <script type="module" src="{% static "jpillora/jquery.rest/dist/1/jquery.rest.min.js" %}"></script>
   <script src="{% static 'scripts/global.js' %}" charset="utf-8"></script>

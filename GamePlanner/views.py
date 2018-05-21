@@ -12,7 +12,7 @@ from django.core import serializers
 import json
 # Create your views here.
 def test(request):
-    return render(request, 'views/task_list.html')
+    return render(request, 'test.html')
 
 
 

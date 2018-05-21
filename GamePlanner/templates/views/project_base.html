@@ -4,10 +4,7 @@
 
 {% block extra_css %}
 <style media="screen">
-html,body {
-height: 100%;
-background-color: #fff;
-}
+
 .aside {
 display:block;
 background-color: #F9F9F9;
@@ -69,6 +66,7 @@ font-weight: 500;
 }
 #base-container {
   margin-left: 0;
+  height: 100%;
 }
 </style>
 {% block project_css %}
@@ -119,7 +117,6 @@ font-weight: 500;
 </div>
 {% block project_content %}
 {% endblock project_content %}
-</div>
 {% endblock %}
 {% block extra_javascript %}
 <script type="text/javascript">
