@@ -28,6 +28,7 @@ class TaskResource(ModelResource):
     class Meta:
         queryset = Task.objects.all()
         resource_name = 'task'
+        list_allowed_methods = ['get', 'post', 'patch']
         authentication = SessionAuthentication()
         authorization = DjangoAuthorization()
         serializer = VerboseSerializer(formats=['json'])
