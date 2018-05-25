@@ -1,5 +1,5 @@
 media/
-static/
+/static/
 __pycache__/
 EIRPlanner/__pycache__/
 EIRPlanner/templatetags/__pycache__/
@@ -9,3 +9,5 @@ components/
 node_modules/
 yarn-error.log
 yarn.lock
+static/CACHE/
+/EIRPlanner/static/CACHE/
