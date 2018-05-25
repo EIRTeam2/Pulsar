@@ -4,12 +4,13 @@
 
 {% block extra_css %}
 <style media="screen">
+html {
+  background-color: #FFF;
+}
 
 .aside {
-display:block;
-background-color: #F9F9F9;
-border-right: 1px solid #DEDEDE;
 }
+
 .aside .compose {
 height: 95px;
 margin:0 -10px;
@@ -21,6 +22,8 @@ padding: 25px 30px;
 font-size: 14px;
 font-weight: 700;
 }
+
+
 .aside .main {
 padding: 40px;
 padding-top: 0;
@@ -45,9 +48,9 @@ margin: 0 -50px;
 padding-left: 50px;
 }
 .aside .main .item:active,.aside .main .item:hover {
-background-color: #F2F2F2;
-margin: 0 -50px;
-padding-left: 50px;
+  background-color: #F2F2F2;
+  margin: 0 -50px;
+  padding-left: 50px;
 }
 .aside .main .icon {
 font-size: 19px;
@@ -67,6 +70,15 @@ font-weight: 500;
 #base-container {
   margin-left: 0;
   height: 100%;
+  width: auto;
+}
+
+.menu-list li a {
+  color: #643B6D;
+}
+
+.menu-list li a:hover {
+  color: #966787;
 }
 </style>
 {% block project_css %}
@@ -74,25 +86,28 @@ font-weight: 500;
 {% endblock project_css %}
 {% endblock extra_css %}
 {% block content %}
-<div class="columns">
-<aside class="column is-2 aside hero is-fullheight">
-    <div>
-        <div class="compose has-text-centered">
-          <a class="button is-block" id="showModal">
-            <span class="icon">
-              <i class="fa fa-plus" aria-hidden="true"></i>
-            </span>
-            <span>New Task</span>
-          </a>
-        </div>
-        <div class="main">
-            <a href="{% url 'project_summary' project.slug %}" class="item active"><span class="icon"><i class="fa fa-home"></i></span><span class="name">Summary</span></a>
-            <a href="{% url 'kanban' project.slug %}" class="item"><span class="icon"><i class="fa fa-th-large"></i></span><span class="name">Boards</span></a>
-            <a href="#" class="item"><span class="icon"><i class="fa fa-sitemap"></i></span><span class="name">Game Design</span></a>
-            <a href="#" class="item"><span class="icon"><i class="fa fa-folder-o"></i></span><span class="name">Folders</span></a>
-        </div>
-    </div>
-</aside>
+
+<div class="columns" id="project-app">
+  <aside class="column is-2 is-narrow-mobile is-fullheight is-hidden-mobile aside">
+   <ul class="menu-list">
+     <li>
+       <a href="{% url 'project_summary' project.slug %}" class="">
+         <span class="icon"><i class="fa fa-home"></i></span> Project Summary
+       </a>
+     </li>
+     <li>
+       <a href="#" class="">
+         <span class="icon"><i class="fa fa-info"></i></span> Kanban
+       </a>
+     </li>
+     <li>
+       <a href="#" class="">
+         <span class="icon"><i class="fa fa-cog"></i></span> Administration
+       </a>
+     </li>
+   </ul>
+ </aside>
+
 <div class="modal">
   <div class="modal-background"></div>
   <div class="modal-card">
@@ -115,10 +130,8 @@ font-weight: 500;
     </footer>
   </div>
 </div>
-<div class="column is-12" id="project-app">
 {% block project_content %}
 {% endblock project_content %}
-</div>
 </div>
 
 {% endblock %}

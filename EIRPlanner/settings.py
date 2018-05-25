@@ -14,7 +14,6 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-APPEND_SLASH=False
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -45,7 +44,6 @@ INSTALLED_APPS = [
     'bulma',
     'tastypie',
     'simplemde',
-    'djangobower',
     'compressor',
     'compressor_toolkit',
 ]
@@ -55,7 +53,6 @@ ACCOUNT_AUTHENTICATION_METHOD = 'username'
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'djangobower.finders.BowerFinder',
     'yarn.finders.YarnFinder',
     'compressor.finders.CompressorFinder',
 ]

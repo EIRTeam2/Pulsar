@@ -8,7 +8,9 @@
 <link rel="stylesheet" href="{% static 'simplemde/dist/simplemde.min.css' %}">
 <link rel="stylesheet" href="{% static 'dragula.js/dist/dragula.min.css' %}">
 <style media="screen">
-
+html {
+  background-color: #F9F9F9;
+}
 .drag-container {
   width: 400px;
   margin: 0 auto;
@@ -22,46 +24,53 @@
   padding: 8px;
 }
 
-html, body, #app {
-  height: 100%;
-}
 
 
 .CodeMirror {
 height: 300px;
 
 }
-#element-viewer {
-overflow-y: auto;
-  height: 90vh;
-  background-color: #FCFCFC;
+details {
+  margin-top: 1rem;
 }
-
 
 </style>
 
 <style media="screen">
-  .editable-field:hover {
-    background-color: #F9F9F9;
 
+  .vddl-list, .vddl-draggable {
+    margin: 0;
+    cursor: move;
   }
-  .editable-icon:hover {
+  .deploy-icon {
     cursor: pointer;
   }
-  .editable-icon {
-    visibility: hidden;
+  details {
+    margin:0;
   }
-  .editable-field {
-    padding: 2px;
+  .item-box {
+    border-radius: 0;
+    left: 10px;
+    margin-bottom: 0;
+    box-shadow: none;
+    border: none;
+    background-color: #FFF;
   }
-  .editable-field:hover .editable-icon {
-    visibility: visible;
+
+  .box:hover {
+    background-color: #F3F3F3;
   }
-  .vddl-list, .vddl-draggable {
+  .box-selected {
+    border: solid 1px #888;
+  }
+  .children-list {
     position: relative;
-  }
-  .vddl-list {
-  min-height: 44px;
+    margin-top: 0;
+    margin-left: 50px;
+    min-height: 10px;
+}
+.childless-list {
+  min-height: 10px;
 }
 .vddl-dragging{
   opacity: 0.7;
@@ -70,39 +79,49 @@ overflow-y: auto;
 .vddl-dragging-source {
   display: none;
 }
+#base-section {
+  padding: 3rem 1.5rem;
+  padding-top: 1.5rem;
+  padding-left: 1.5rem;
+
+}
+.top-level-item {
+  margin-right: 0.25rem;
+  padding: 0;
+}
 </style>
 {% endblock %}
 
 {%  block project_content %}
-<div class="columns">
-    <div class="column tovue" v-bind:class="[viewing_node ? 'is-6' : 'is-12']">
-        <div v-for="(node, index) in nodes">
-          <tree-item :callback="item_selected" :key="node.id" :node="node" :nodes="nodes" :index="index"></tree-item>
+<div class="tile" id="design-editor-app">
+  <div  class="tile is-vertical">
+    <div class="top-level-item" v-for="(node, index) in nodes">
+      <TreeItem :callback="item_selected" :key="node.id" :node="node" v-bind:selected_node="editing_object" :nodes="nodes" :index="index"></TreeItem>
+    </div>
+  </div>
+  <div v-if="viewing_node" class="tile is-vertical" id="element-viewer">
+
+  <div id="design-element-toolbar" class="level">
+    <div class="level-left">
+        <EditableInput v-for="property in property_list" :resource_type="resource_type"  v-bind:property="property" v-bind:editing_object="editing_object" v-bind:key="property.name"></EditableInput>
+    </div>
+    <div class="level-right">
+      <div class="level-item">
+        <a class="button" id="design-element-edit">Edit</a>
       </div>
     </div>
-    <div v-if="viewing_node" class="column tovue" id="element-viewer" style="padding-right: 2%;"  style="background-color: #F9F9F9; overflow: auto;">
+  </div>
 
-      <div id="design-element-toolbar" class="level">
-        <div class="level-left">
-            <editable-input v-for="property in property_list" :resource_type="resource_type"  v-bind:property="property" v-bind:editing_object="editing_object" v-bind:key="property.name"></editable-input>
-        </div>
-        <div class="level-right">
-          <div class="level-item">
-            <a class="button" id="design-element-edit">Edit</a>
-          </div>
-        </div>
-      </div>
+  <div class="content" id="display-description">
+    <vue-markdown :source="editing_object.description"></vue-markdown>
+  </div>
+  <div id="description-editor-wrapper" class=" content">
+    <textarea class="" id="description-editor">
+    </textarea>
+    <a class="button is-primary" id="description-save-button">Save</a>
+  </div>
 
-      <div class="content" id="display-description">
-        <vue-markdown>[[editing_object.description]]</vue-markdown>
-      </div>
-      <div id="description-editor-wrapper" class=" content">
-        <textarea class="" id="description-editor">
-        </textarea>
-        <a class="button is-primary" id="description-save-button">Save</a>
-      </div>
-
-    </div>
+</div>
 </div>
 {% endblock %}
 
@@ -110,11 +129,17 @@ overflow-y: auto;
 <script src="{% static 'jqTree/tree.jquery.js' %}" charset="utf-8"></script>
 <script src="{% static 'showdown/dist/showdown.min.js' %}" charset="utf-8"></script>
 <script src="{% static 'simplemde/dist/simplemde.min.js' %}" charset="utf-8"></script>
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'scripts/jquery.rest.js' %}"></script>
+
 {% compress js %}
 <script  type="module" >
 import Vddl from 'vddl';
 import Vue from "vue";
-import VueMarkdown from 'vue-markdown'
+import VueMarkdown from 'vue-markdown';
+import treeitem from 'vue_components/tree-item.vue';
+import EditableInput from 'vue_components/editable-input.vue';
+
   $(function() {
 
     function getNodeById(id, node){
@@ -130,62 +155,22 @@ import VueMarkdown from 'vue-markdown'
 
     Vue.use(Vddl);
     Vue.use(VueMarkdown);
+    Vue.config.debug = true;
     var tree_data = {{nodes|safe}}
     console.log(tree_data)
 
-    Vue.component('tree-item', {
-    data: function () {
-      return {
-
-      }
-    },
-    props: ["node", "nodes", "index", "callback"],
-    delimiters: ["[[","]]"],
-    template: '<vddl-draggable :selected="callback" class="panel__body--item" :key="node.id" :draggable="node" :index="index" :wrapper="nodes" effect-allowed="move"> <details class="box"> <summary> List [[node.name]] </summary> <vddl-list :list="node.children" :horizontal="false"> <tree-item v-for="(child, c_index) in node.children" :callback="callback" :index="c_index" :nodes="node.children" :key="child.id" :node="child"> </tree-item> <vddl-placeholder class="red">Custom placeholder</vddl-placeholder> </vddl-list> </details> </vddl-draggable>',
-  });
 
 
-    Vue.component('editable-input', {
-    data: function () {
-      return {
-        editing_input: false,
-        input_value: ""
-      }
-    },
-    props: ["property", "editing_object", "resource_type"],
-    delimiters: ["[[","]]"],
-    template: '<div class="editable-field"> <p> <strong>[[property.display_name]]</strong> <span class="icon editable-icon" @click="enableEditing"> <i class="fa fa-pencil "> </i> </span> </p><div v-if="!editing_input" class="content"> [[getFieldValueFromEditingObject(property.field)]] </div><input v-if="editing_input" ref="user_input" v-model="input_value" class="input" type="text" placeholder="Text input" v-on:keyup.enter="saveEdit" v-on:keyup.esc="disableEditing"> <p v-if="editing_input" class="has-text-right is-size-7"> Enter to save | ESC to cancel </p></div>',
-    methods: {
-      enableEditing: function(){
-        this.editing_input = true;
-        this.input_value = this.editing_object;
-      },
-      getFieldValueFromEditingObject: function(field_name) {
-        return this.editing_object[field_name]
-      },
-      disableEditing: function(){
-        this.editing_input = false;
-        this.property.value = this.property.pre_edit_value
-      },
-      saveEdit: function(){
-        // However we want to save it to the database
-        var client = new $.RestClient('/api/', {"ajax": ajaxOption});
-        console.log(this.resource_type)
-        client.add('resource', {stringifyData: true, url:this.resource_type})
-        var update = {}
-        this.editing_object[this.property.field] = this.input_value
-        update = this.editing_object
-        client.resource.update(this.editing_object.id, update)
-        this.editing_input = false;
-      }
-    }
-  });
+
+
 
 
     var app = new Vue({
-      el: '#project-app',
+      el: '#design-editor-app',
       delimiters: ["[[","]]"],
       components: {
+        treeitem: treeitem,
+        editableinput: EditableInput,
         VueMarkdown
       },
       methods: {
@@ -196,16 +181,16 @@ import VueMarkdown from 'vue-markdown'
           console.log("UWU")
           this.viewing_node = true
           this.editing_object = getNodeById(node_id, this.nodes)
+          console.log(this.editing_object)
         },
       },
       data: {
-        editing_object: [],
+        editing_object: {id: -1},
         property_list: [{
           "display_name": "Name",
           "field": "name",
         }],
         "nodes": {{nodes|safe}},
-        "selected_node": 0,
         "resource_type": "design_element",
         "viewing_node": false,
         "lists": {
@@ -222,6 +207,7 @@ import VueMarkdown from 'vue-markdown'
           }
       },
     })
+    console.log(app.$options.components)
     var client = new $.RestClient('/api/', {"ajax": ajaxOption});
     client.add("design_element", {stringifyData: true})
 
