@@ -9,16 +9,19 @@
     "browserify": "^16.2.2",
     "jquery": "^3.3.1",
     "jquery.rest": "^1.0.3",
+    "rest": "^2.0.0",
+    "v-click-outside": "^1.0.4",
     "vddl": "^0.7.1",
     "vue": "^2.5.16",
-    "vue-markdown": "^2.2.4"
+    "vue-markdown": "^2.2.4",
+    "vue-simplemde": "^0.4.8"
   },
   "version": "1.0.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "AGPLv3",
+  "license": "AGPL-3.0-or-later",
   "description": "",
   "devDependencies": {
     "vueify": "^9.4.1"

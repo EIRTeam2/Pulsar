@@ -25,6 +25,7 @@ class VerboseSerializer(Serializer):
             raise BadRequest(u"Incorrect JSON format: Reason: \"{}\" (See www.json.org for more info.)".format(e.message))
 
 class TaskResource(ModelResource):
+    design_element = fields.ForeignKey("GamePlanner.api.DesignElementResource", 'design_element', full=False)
     class Meta:
         queryset = Task.objects.all()
         resource_name = 'task'
@@ -35,7 +36,7 @@ class TaskResource(ModelResource):
 
 class DesignElementResource(ModelResource):
     parent = fields.ForeignKey('self', 'parent', null=True, full=False)
-    children = fields.ToManyField('self', 'children', full=True, null=True)
+    tasks = fields.ToManyField(TaskResource, 'tasks', full=True)
     class Meta:
         queryset = DesignElement.objects.all()
         resource_name = 'design_element'
@@ -45,6 +46,7 @@ class DesignElementResource(ModelResource):
 
 class ProjectResource(ModelResource):
     tasks = fields.ToManyField(TaskResource, 'tasks', full=True)
+    #design_elements = fields.ToManyField(DesignElementResource, 'design_elements', related_name="project", full=True)
     class Meta:
         queryset = Project.objects.all()
         resource_name = 'project'

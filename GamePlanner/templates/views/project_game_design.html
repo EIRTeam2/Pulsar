@@ -8,9 +8,7 @@
 <link rel="stylesheet" href="{% static 'simplemde/dist/simplemde.min.css' %}">
 <link rel="stylesheet" href="{% static 'dragula.js/dist/dragula.min.css' %}">
 <style media="screen">
-html {
-  background-color: #F9F9F9;
-}
+
 .drag-container {
   width: 400px;
   margin: 0 auto;
@@ -79,12 +77,7 @@ details {
 .vddl-dragging-source {
   display: none;
 }
-#base-section {
-  padding: 3rem 1.5rem;
-  padding-top: 1.5rem;
-  padding-left: 1.5rem;
 
-}
 .top-level-item {
   margin-right: 0.25rem;
   padding: 0;
@@ -94,33 +87,51 @@ details {
 
 {%  block project_content %}
 <div class="tile" id="design-editor-app">
-  <div  class="tile is-vertical">
-    <div class="top-level-item" v-for="(node, index) in nodes">
-      <TreeItem :callback="item_selected" :key="node.id" :node="node" v-bind:selected_node="editing_object" :nodes="nodes" :index="index"></TreeItem>
-    </div>
+  <div  class="tile is-vertical" v-if="nodes.constructor === Array">
+    <vddl-list :inserted="on_inserted" :list="nodes" :horizontal=false>
+
+      <div class="top-level-item" v-for="(node, index) in nodes">
+          <TreeItem :callback="item_selected" :key="node.id" :node="node" v-bind:selected_node="editing_object" :nodes="nodes" :index="index"></TreeItem>
+      </div>
+    </vddl-list>
+
   </div>
   <div v-if="viewing_node" class="tile is-vertical" id="element-viewer">
+    <tabs>
+      <tab name="Info" :selected="true">
+        <div id="design-element-toolbar" class="level">
+            <div class="level-item">
+              <EditableInput :editor="'text'" :resource_type="resource_type"  :field_name="'name'" :field_display_name="'Name'"
+                               v-bind:editing_object="editing_object" :key="'name'"  >
+              </EditableInput>
+            </div>
+            <div class="level-item">
+              <EditableInput :editor="'text'" :resource_type="resource_type"  :field_name="'name'" :field_display_name="'Name'"
+                               v-bind:editing_object="editing_object" :key="'name'"  >
+              </EditableInput>
+            </div>
+            <div class="level-item">
+              <EditableInput :editor="'text'" :resource_type="resource_type"  :field_name="'name'" :field_display_name="'Name'"
+                               v-bind:editing_object="editing_object" :key="'name'"  >
+              </EditableInput>
+            </div>
+            <div class="level-item">
+              <EditableInput :editor="'text'" :resource_type="resource_type"  :field_name="'name'" :field_display_name="'Name'"
+                               v-bind:editing_object="editing_object" :key="'name'"  >
+              </EditableInput>
+            </div>
+        </div>
 
-  <div id="design-element-toolbar" class="level">
-    <div class="level-left">
-        <EditableInput v-for="property in property_list" :resource_type="resource_type"  v-bind:property="property" v-bind:editing_object="editing_object" v-bind:key="property.name"></EditableInput>
-    </div>
-    <div class="level-right">
-      <div class="level-item">
-        <a class="button" id="design-element-edit">Edit</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="content" id="display-description">
-    <vue-markdown :source="editing_object.description"></vue-markdown>
-  </div>
-  <div id="description-editor-wrapper" class=" content">
-    <textarea class="" id="description-editor">
-    </textarea>
-    <a class="button is-primary" id="description-save-button">Save</a>
-  </div>
-
+        <div class="content" id="display-description">
+          <EditableInput :resource_type="resource_type"  :field_name="'description'" :field_display_name="'Description'"
+                           v-bind:editing_object="editing_object" v-bind:editor="'markdown'" :key="'description'"  >
+          </EditableInput>
+        </div>
+      </tab>
+      <tab name="Tasks">
+        UWU
+      </tab>
+    </tabs>
 </div>
 </div>
 {% endblock %}
@@ -133,164 +144,10 @@ details {
 <script src="{% static 'scripts/jquery.rest.js' %}"></script>
 
 {% compress js %}
-<script  type="module" >
-import Vddl from 'vddl';
-import Vue from "vue";
-import VueMarkdown from 'vue-markdown';
-import treeitem from 'vue_components/tree-item.vue';
-import EditableInput from 'vue_components/editable-input.vue';
-
-  $(function() {
-
-    function getNodeById(id, node){
-        var reduce = [].reduce;
-        function runner(result, node){
-            if(result || !node) return result;
-            return node.id === id && node || //is this the proper node?
-                runner(null, node.children) || //process this nodes children
-                reduce.call(Object(node), runner, result);  //maybe this is some ArrayLike Structure
-        }
-        return runner(null, node);
-    }
-
-    Vue.use(Vddl);
-    Vue.use(VueMarkdown);
-    Vue.config.debug = true;
-    var tree_data = {{nodes|safe}}
-    console.log(tree_data)
-
-
-
-
-
-
-
-    var app = new Vue({
-      el: '#design-editor-app',
-      delimiters: ["[[","]]"],
-      components: {
-        treeitem: treeitem,
-        editableinput: EditableInput,
-        VueMarkdown
-      },
-      methods: {
-        item_selected : function(event) {
-          this.select_node(event.id)
-        },
-        select_node : function(node_id) {
-          console.log("UWU")
-          this.viewing_node = true
-          this.editing_object = getNodeById(node_id, this.nodes)
-          console.log(this.editing_object)
-        },
-      },
-      data: {
-        editing_object: {id: -1},
-        property_list: [{
-          "display_name": "Name",
-          "field": "name",
-        }],
-        "nodes": {{nodes|safe}},
-        "resource_type": "design_element",
-        "viewing_node": false,
-        "lists": {
-          "A": [
-            {
-              "id": 1,
-              "label": "Item A1"
-            },
-            {
-              "id": 2,
-              "label": "Item A2"
-            },
-          ]
-          }
-      },
-    })
-    console.log(app.$options.components)
-    var client = new $.RestClient('/api/', {"ajax": ajaxOption});
-    client.add("design_element", {stringifyData: true})
-
-
-/*    $('#tree1').tree({
-        data: tree_data,
-        dragAndDrop: true,
-    });
-    $('#tree1').on(
-    'tree.move',
-    function(event) {
-        event.preventDefault();
-        event.move_info.do_move();
-        console.log('moved_node', event.move_info.moved_node);
-
-        // Parent changed!!!!
-
-        console.log($.isEmptyObject(event.move_info.moved_node.parent.id))
-        if (event.move_info.moved_node.parent.id === parseInt(event.move_info.moved_node.parent.id)) {
-          url = "/api/design_element/" + event.move_info.moved_node.parent.id + "/"
-          client.design_element.update(event.move_info.moved_node.id, {parent: url})
-
-        } else {
-        client.design_element.update(event.move_info.moved_node.id, {parent: null})
-
-        }
-
-
-
-    }
-);
-*/
-var simplemde = new SimpleMDE({ element: $("#description-editor")[0] });
-var current_design_element = []
-// bind 'tree.click' event
-
-function edit_current_element() {
-  simplemde.value(current_design_element.description)
-  $("#display-description").addClass("is-hidden")
-  $("#description-editor-wrapper").removeClass("is-hidden")
-  simplemde.codemirror.refresh();
-}
-
-function finish_editing() {
-  $("#display-description").removeClass("is-hidden")
-  $("#description-editor-wrapper").addClass("is-hidden")
-}
-
-$('#tree1').on(
-    'tree.click',
-    function(event) {
-      client.design_element.read(event.node.id).done(function (data){
-        var converter = new showdown.Converter()
-        var html = converter.makeHtml(data.description);
-        $("#display-description").html(html);
-        current_design_element = data
-        app.edit_object("design_element", data)
-
-        $("#design-element-toolbar").removeClass("is-hidden");
-      });
-
-    }
-);
-
-$("#design-element-edit").click( function(event) {
-    edit_current_element()
-})
-
-
-
-$("#description-save-button").click( function(event) {
-  client.design_element.update(current_design_element.id, {description: simplemde.value()})
-  current_design_element.description = simplemde.value()
-  var converter = new showdown.Converter()
-  var html = converter.makeHtml(current_design_element.description);
-  $("#display-description").html(html);
-  finish_editing()
-})
-
-});
-
-
-
+<script type="module" src="{% static 'scripts/game_design.js' %}"></script>
+<script>
+set_nodes({{nodes|safe}})
+console.log({{nodes|safe}})
 </script>
 {% endcompress %}
 <script type="text/javascript">

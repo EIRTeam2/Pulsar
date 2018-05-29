@@ -6,7 +6,7 @@
         </span>
         <span>{{node.name}}</span>
       </div>
-      <vddl-list :list="node.children" :horizontal="false" v-bind:class="{'item-box box childless-list': node.children.length <= 0, 'children-list': node.children.length > 0, 'box-selected': node.id == selected_node.id && node.children.length <= 0}">
+      <vddl-list :inserted="on_inserted" :list="node.children" :horizontal="false" v-bind:class="{'item-box box childless-list': node.children.length <= 0, 'children-list': node.children.length > 0, 'box-selected': node.id == selected_node.id && node.children.length <= 0}">
             <div v-if="node.children.length <= 0">
               <span>{{node.name}}</span>
             </div>
@@ -18,6 +18,14 @@
 </template>
 
 <script>
+import {getCookie} from 'scripts/csrf.js';
+
+var rest = require('rest');
+
+var csrf = require('rest/interceptor/csrf')
+var mime = require('rest/interceptor/mime')
+var client = rest.wrap(csrf, {name: "X-CSRFToken" ,token: getCookie("csrftoken") })
+client = client.wrap(mime)
 module.exports = {
   name:"TreeItem",
   props: ["node", "nodes", "index", "callback", "selected_node"],
@@ -30,6 +38,26 @@ module.exports = {
     toggle_button: function(event) {
       event.stopPropagation();
       this.deployed = !this.deployed;
+    },
+    on_inserted : function(result) {
+      console.log(result.item.name + " is now a child of " + this.node.resource_url)
+      console.log(result.item)
+      var resulted = result.item
+      var resulting_entity = {
+          id: result.item.id,
+          parent: {pk: this.node.id},
+      }
+      client({
+        path: "/api/design_element/" + result.item.id + "/",
+        method: "PATCH",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        entity: resulting_entity
+      }).then(function(response) {
+          console.log('response: ', response);
+      });
+
     }
   }
 }

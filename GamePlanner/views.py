@@ -65,7 +65,7 @@ class ProjectView(generic.DetailView):
 def game_design(request, slug):
     project = get_object_or_404(Project, slug=slug)
     nodes = []
-    for design_element in DesignElement.objects.filter(parent=None):
+    for design_element in DesignElement.objects.filter(parent=None, project=project):
         nodes.append(design_element.serializable_object())
 
     return render(request, 'views/project_game_design.html', {'project': project, 'nodes':json.dumps(nodes)})

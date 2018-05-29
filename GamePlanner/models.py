@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from .slugify import unique_slugify
 from simplemde.fields import SimpleMDEField
+from django.forms.models import model_to_dict
 import math
 import datetime
 class User(AbstractUser):
@@ -122,11 +123,14 @@ class SubCategory(models.Model):
 class DesignElement(models.Model):
     name = models.CharField(max_length=300)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name="children")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True, related_name="design_elements")
     description = SimpleMDEField("Element description", null=True, blank=True)
     def serializable_object(self):
-        obj = {'name': self.name, 'children': [], 'description': self.description, 'id': self.pk}
+        obj = {'name': self.name, 'children': [], 'description': self.description, 'tasks': [], 'id': self.pk}
         for child in self.children.all():
             obj['children'].append(child.serializable_object())
+        for task in self.tasks.all():
+            obj["tasks"].append(model_to_dict(task))
         return obj
     def __str__(self):
         return self.name
@@ -149,7 +153,7 @@ class Task(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     milestone = models.ForeignKey(Milestone, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    design_element = models.ForeignKey(DesignElement, on_delete=models.CASCADE, related_name="design_elements")
+    design_element = models.ForeignKey(DesignElement, on_delete=models.CASCADE, related_name="tasks")
     platform = models.ForeignKey(Platform, on_delete=models.CASCADE)
     estimated_cost = models.FloatField("Estimated time cost")
     final_cost = models.FloatField("Final cost", default=0.0)

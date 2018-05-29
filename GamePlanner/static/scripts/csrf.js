@@ -1,4 +1,5 @@
-function getCookie(name) {
+
+export function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         var cookies = document.cookie.split(';');
@@ -14,7 +15,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-var ajaxOption = {
+export var ajaxOption = {
     beforeSend: function(xhr, settings) {
         if (settings.type == 'POST' || settings.type == 'PUT' || settings.type == 'DELETE') {
             if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {

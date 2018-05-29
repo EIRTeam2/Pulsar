@@ -1,13 +1,40 @@
 <template>
-  <div class="editable-field">
-      <p> <strong>{{property.display_name}}</strong> <span class="icon editable-icon" @click="enableEditing"> <i class="fa fa-pencil "> </i> </span> </p>
-      <div v-if="!editing_input" class="content"> {{getFieldValueFromEditingObject(property.field)}} </div>
-      <input v-if="editing_input" ref="user_input" v-model="input_value" class="input" type="text" placeholder="Text input" v-on:keyup.enter="saveEdit" v-on:keyup.esc="disableEditing">
-      <p v-if="editing_input" class="has-text-right is-size-7"> Enter to save | ESC to cancel </p>
+  <div v-bind:class="{'editable-field': !editing_input }" v-click-outside="disableEditing">
+      <p> <strong>{{field_display_name}}</strong> <span class="icon editable-icon" @click="enableEditing"> <i class="fa fa-pencil "> </i> </span> </p>
+      <div v-if="!editing_input">
+        <div v-if="editor == 'text'"> {{getFieldValueFromEditingObject(field_name)}} </div>
+        <div v-if="editor == 'markdown'"><vue-markdown :source="editing_object[field_name]">  </vue-markdown></div>
+      </div>
+
+      <div v-if="editing_input">
+        <input v-if="editor == 'text'" ref="user_input" v-model="input_value" class="input" type="text" placeholder="Text input" v-on:keyup.enter="saveEdit" v-on:keyup.esc="disableEditing">
+        <markdown-editor v-if="editor== 'markdown'" :value="input_value"></markdown-editor>
+      </div>
+      <p v-if="editing_input && editor=='text'" class="has-text-right is-size-7"> Enter to save | ESC to cancel </p>
+      <div class="level" v-if="editing_input && editor=='markdown'">
+        <div class="level-left">
+
+        </div>
+        <div class="level-right">
+          <a class="button is-success" @click="saveEditing">Save</a>
+          <a class="button is-danger" @click="disableEditing">Cancel</a>
+        </div>
+      </div>
   </div>
 </template>
 
 <script>
+import {getCookie} from 'scripts/csrf.js';
+import VueMarkdown from 'vue-markdown';
+import markdownEditor from 'vue_components/markdown_editor.vue';
+import vClickOutside from 'v-click-outside'
+var rest = require('rest');
+
+var csrf = require('rest/interceptor/csrf')
+var mime = require('rest/interceptor/mime')
+var client = rest.wrap(csrf, {name: "X-CSRFToken" ,token: getCookie("csrftoken") })
+client = client.wrap(mime)
+
 module.exports = {
   name:"EditableInput",
   data: function () {
@@ -16,31 +43,48 @@ module.exports = {
       input_value: ""
     }
   },
-  props: ["property", "editing_object", "resource_type"],
+  props: ["field_display_name", "field_name", "editing_object", "resource_type", "editor"],
+  components: {
+    "vue-markdown": VueMarkdown,
+    "markdown-editor": markdownEditor
+  },
+  // Editor can either be text or markdown
   methods: {
     enableEditing: function(){
       this.editing_input = true;
-      this.input_value = this.editing_object[this.property.field];
+      this.input_value = this.editing_object[this.field_name];
     },
     getFieldValueFromEditingObject: function(field_name) {
       return this.editing_object[field_name]
     },
     disableEditing: function(){
       this.editing_input = false;
-      this.property.value = this.property.pre_edit_value
     },
     saveEdit: function(){
       // However we want to save it to the database
-      var client = new $.RestClient('/api/', {"ajax": ajaxOption});
-      console.log(this.resource_type)
-      client.add('resource', {stringifyData: true, url:this.resource_type})
-      var update = {}
-      this.editing_object[this.property.field] = this.input_value
-      update = this.editing_object
-      client.resource.update(this.editing_object.id, update)
+      var updated_resource = {
+        id: this.editing_object.id
+      }
+      updated_resource[this.field_name] = this.input_value
+
+      client({
+        path: "/api/" + this.resource_type + "/" + this.editing_object.id + "/",
+        method: "PATCH",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        entity: updated_resource
+      }).then(function(response) {
+          console.log('response: ', response);
+      });
+
+      this.editing_object[this.field_name] = this.input_value
       this.editing_input = false;
     }
-}
+  },
+  directives: {
+    clickOutside: vClickOutside.directive
+  }
 }
 </script>
 
@@ -50,6 +94,12 @@ module.exports = {
   color: #fff;
 
 }
+
+.editable-field:hover strong {
+  color: #fff;
+
+}
+
 .editable-icon:hover {
   cursor: pointer;
 }
