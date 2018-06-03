@@ -39,8 +39,13 @@
 
 {% block project_content %}
 <div class="column is-paddingless" id="task-list-app">
-  <section class="section">
+  <section class="section is-hidden">
     <div class="container">
+      <div class="select">
+        <select v-model="selected_milestone">
+          <option v-for="milestone in project.milestones" :key="milestone.id" v-bind:value="milestone">[[milestone.name]]</option>
+        </select>
+      </div>
       <h1 class="title">Section</h1>
       <h2 class="subtitle">
         A simple container to divide your page into <strong>sections</strong>, like the one you're currently reading
@@ -49,7 +54,7 @@
   </section>
   <section class="section">
     <div class="container" id="task-list">
-      <kanban :categories="categories"></kanban>
+      <kanban :categories="categories" :milestone="selected_milestone"></kanban>
     </div>
   </section>
 
@@ -64,7 +69,7 @@
 <script type="text/javascript">
 
 
-
+set_project({{project_dict|safe}})
 set_tasks({{tasks|safe}})
 
 

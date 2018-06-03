@@ -36,7 +36,7 @@ class TaskResource(ModelResource):
 
 class DesignElementResource(ModelResource):
     parent = fields.ForeignKey('self', 'parent', null=True, full=False)
-    tasks = fields.ToManyField(TaskResource, 'tasks', full=True)
+    tasks = fields.ToManyField(TaskResource, 'tasks', null=True, full=True)
     class Meta:
         queryset = DesignElement.objects.all()
         resource_name = 'design_element'

@@ -8,6 +8,7 @@ import tab from 'vue_components/tab.vue';
 import tabs from 'vue_components/tabs.vue';
 import vClickOutside from 'v-click-outside'
 import {getCookie, ajaxOption} from 'scripts/csrf.js';
+import Task from 'vue_components/task.vue';
 
 var rest = require('rest');
 
@@ -46,6 +47,7 @@ var app = new Vue({
     editableinput: EditableInput,
     tab: tab,
     tabs: tabs,
+    task: Task,
     VueMarkdown
   },
   methods: {
@@ -86,6 +88,7 @@ var app = new Vue({
       "editor": "text"
     }],
     "nodes": "",
+    "project": {},
     "resource_type": "design_element",
     "viewing_node": false,
     "lists": {
@@ -106,4 +109,9 @@ var app = new Vue({
 
 window.set_nodes = function (nodes) {
   app.nodes = nodes
+}
+
+window.set_project = function (project) {
+  console.log(project)
+  app.project = project
 }

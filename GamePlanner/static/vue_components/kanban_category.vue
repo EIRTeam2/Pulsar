@@ -2,9 +2,8 @@
   <div class="column scolumn">
     <p class="kanban-title">{{category.display_name}}</p>
     <vddl-list :inserted="on_inserted" class="column scolumn" :list="category.nodes" :horizontal="false">
-      <vddl-draggable v-for="(node, node_index) in category.nodes" v-if="node.fields.stage==category.name" class="box item-box" :wrapper="category.nodes" :index="node_index" :draggable="node">
-        <p><strong>#{{node.pk}} </strong>{{node.fields.title}}</p>
-        <p></p>
+      <vddl-draggable v-for="(node, node_index) in category.nodes" v-if="node.stage==category.name && node.milestone.id==milestone.id" :wrapper="category.nodes" :index="node_index" :draggable="node">
+        <Task :task="node"></Task>
       </vddl-draggable>
       <vddl-placeholder class="red is-size-7">Drop to add as children</vddl-placeholder>
     </vddl-list>
@@ -19,13 +18,20 @@ var csrf = require('rest/interceptor/csrf')
 var mime = require('rest/interceptor/mime')
 var client = rest.wrap(csrf, {name: "X-CSRFToken" ,token: getCookie("csrftoken") })
 client = client.wrap(mime)
+import Task from 'vue_components/task.vue';
 
 module.exports = {
   name:"KanbanBoard",
   props: {
     category: {
       required: true
+    },
+    milestone: {
+      required: true
     }
+  },
+  components: {
+    "Task": Task
   },
   data: function() {
     return {
@@ -33,13 +39,13 @@ module.exports = {
   },
   methods: {
     on_inserted : function(result) {
-      result.item.fields.stage = this.category.name
+      result.item.stage = this.category.name
       var resulting_entity = {
-        id: result.item.pk,
+        id: result.item.id,
         stage: this.category.name
       }
       client({
-        path: "/api/task/" + result.item.pk + "/",
+        path: "/api/task/" + result.item.id + "/",
         method: "PATCH",
         headers: {
           'Content-Type': 'application/json'

@@ -1,5 +1,6 @@
 from django import template
 from GamePlanner.forms import TaskForm
+import json
 register = template.Library()
 
 @register.filter(name = 'format_username')
@@ -14,3 +15,7 @@ def format_cost(value, project):
 @register.filter(name = 'get_task_form')
 def get_task_form(value):
     return TaskForm(project=value)
+
+@register.filter(name = 'serialize')
+def get_task_form(value):
+    return json.dumps(value.serializable_object())

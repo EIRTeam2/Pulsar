@@ -1,14 +1,13 @@
 <template>
 
 <div class="columns scolumns">
-  <KanbanBoard v-for="(category, cat_index) in categories" :category="category"></KanbanBoard>
-
+  <KanbanCategory v-for="(category, cat_index) in categories" :category="category" :milestone="milestone"></KanbanCategory>
 </div>
 </template>
 
 <script>
 import {getCookie} from 'scripts/csrf.js';
-import KanbanBoard from 'vue_components/kanban_board.vue';
+import KanbanCategory from 'vue_components/kanban_category.vue';
 
 var rest = require('rest');
 
@@ -19,10 +18,13 @@ client = client.wrap(mime)
 module.exports = {
   name:"kanban",
   components: {
-      "KanbanBoard": KanbanBoard
+      "KanbanCategory": KanbanCategory
   },
   props: {
     categories: {
+      required: true
+    },
+    milestone: {
       required: true
     }
   }

@@ -45,7 +45,7 @@ module.exports = {
       var resulted = result.item
       var resulting_entity = {
           id: result.item.id,
-          parent: {pk: this.node.id},
+          parent: {pk: this.node.id}
       }
       client({
         path: "/api/design_element/" + result.item.id + "/",
@@ -56,7 +56,7 @@ module.exports = {
         entity: resulting_entity
       }).then(function(response) {
           console.log('response: ', response);
-      });
+      })
 
     }
   }

@@ -6,21 +6,6 @@
                            v-bind:editing_object="editing_object" :key="'name'"  >
           </EditableInput>
         </div>
-        <div class="level-item">
-          <EditableInput :editor="'text'" :resource_type="resource_type"  :field_name="'name'" :field_display_name="'Name'"
-                           v-bind:editing_object="editing_object" :key="'name'"  >
-          </EditableInput>
-        </div>
-        <div class="level-item">
-          <EditableInput :editor="'text'" :resource_type="resource_type"  :field_name="'name'" :field_display_name="'Name'"
-                           v-bind:editing_object="editing_object" :key="'name'"  >
-          </EditableInput>
-        </div>
-        <div class="level-item">
-          <EditableInput :editor="'text'" :resource_type="resource_type"  :field_name="'name'" :field_display_name="'Name'"
-                           v-bind:editing_object="editing_object" :key="'name'"  >
-          </EditableInput>
-        </div>
     </div>
 
     <div class="content" id="display-description">

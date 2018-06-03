@@ -2,21 +2,28 @@
   <div v-bind:class="{'editable-field': !editing_input }" v-click-outside="disableEditing">
       <p> <strong>{{field_display_name}}</strong> <span class="icon editable-icon" @click="enableEditing"> <i class="fa fa-pencil "> </i> </span> </p>
       <div v-if="!editing_input">
-        <div v-if="editor == 'text'"> {{getFieldValueFromEditingObject(field_name)}} </div>
         <div v-if="editor == 'markdown'"><vue-markdown :source="editing_object[field_name]">  </vue-markdown></div>
+        <div v-if="editor == 'select'"> {{getFieldValueFromEditingObject(field_name).name}} </div>
+        <div v-else> {{getFieldValueFromEditingObject(field_name)}} </div>
+
       </div>
 
       <div v-if="editing_input">
         <input v-if="editor == 'text'" ref="user_input" v-model="input_value" class="input" type="text" placeholder="Text input" v-on:keyup.enter="saveEdit" v-on:keyup.esc="disableEditing">
         <markdown-editor v-if="editor== 'markdown'" :value="input_value"></markdown-editor>
+        <div v-if="editor == 'select'" class="select">
+          <select>
+            <option v-for="option in options" v-model="input_value">{{option.name}}</option>
+          </select>
+        </div>
       </div>
       <p v-if="editing_input && editor=='text'" class="has-text-right is-size-7"> Enter to save | ESC to cancel </p>
-      <div class="level" v-if="editing_input && editor=='markdown'">
+      <div class="level" v-if="editing_input && (editor=='markdown' || editor=='select')">
         <div class="level-left">
 
         </div>
         <div class="level-right">
-          <a class="button is-success" @click="saveEditing">Save</a>
+          <a class="button is-success" @click="saveEdit">Save</a>
           <a class="button is-danger" @click="disableEditing">Cancel</a>
         </div>
       </div>
@@ -40,10 +47,11 @@ module.exports = {
   data: function () {
     return {
       editing_input: false,
-      input_value: ""
+      input_value: "",
+      selected: {}
     }
   },
-  props: ["field_display_name", "field_name", "editing_object", "resource_type", "editor"],
+  props: ["field_display_name", "field_name", "editing_object", "resource_type", "editor", "options"],
   components: {
     "vue-markdown": VueMarkdown,
     "markdown-editor": markdownEditor

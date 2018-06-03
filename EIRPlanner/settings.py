@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'tastypie',
     'simplemde',
     'compressor',
-    'compressor_toolkit',
+    'compressor_toolkit'
 ]
 AUTH_USER_MODEL = 'GamePlanner.User'
 ACCOUNT_AUTHENTICATION_METHOD = 'username'

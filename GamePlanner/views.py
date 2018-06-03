@@ -54,9 +54,10 @@ def kanban(request, slug):
     if request.method == 'POST':
         pass
     else:
-        tasks = project.tasks.all()
-        tasks = serializers.serialize('json', tasks)
-        return render(request, 'views/task_list.html', {'project': project, 'tasks': tasks})
+        tasks = []
+        for task in project.tasks.all():
+            tasks.append(task.serializable_object())
+        return render(request, 'views/task_list.html', {'project': project, 'project_dict':json.dumps(project.serializable_object()), 'tasks': json.dumps(tasks)})
 
 class ProjectView(generic.DetailView):
     model = Project
@@ -68,7 +69,7 @@ def game_design(request, slug):
     for design_element in DesignElement.objects.filter(parent=None, project=project):
         nodes.append(design_element.serializable_object())
 
-    return render(request, 'views/project_game_design.html', {'project': project, 'nodes':json.dumps(nodes)})
+    return render(request, 'views/project_game_design.html', {'project': project, 'project_dict':json.dumps(project.serializable_object()), 'nodes':json.dumps(nodes)})
 
 class ProjectListView(generic.ListView):
     template_name = 'views/project_list.html'

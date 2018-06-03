@@ -106,17 +106,7 @@ details {
               </EditableInput>
             </div>
             <div class="level-item">
-              <EditableInput :editor="'text'" :resource_type="resource_type"  :field_name="'name'" :field_display_name="'Name'"
-                               v-bind:editing_object="editing_object" :key="'name'"  >
-              </EditableInput>
-            </div>
-            <div class="level-item">
-              <EditableInput :editor="'text'" :resource_type="resource_type"  :field_name="'name'" :field_display_name="'Name'"
-                               v-bind:editing_object="editing_object" :key="'name'"  >
-              </EditableInput>
-            </div>
-            <div class="level-item">
-              <EditableInput :editor="'text'" :resource_type="resource_type"  :field_name="'name'" :field_display_name="'Name'"
+              <EditableInput :editor="'select'" :options="project.element_types" :resource_type="resource_type"  :field_name="'element_type'" :field_display_name="'Element Type'"
                                v-bind:editing_object="editing_object" :key="'name'"  >
               </EditableInput>
             </div>
@@ -129,7 +119,7 @@ details {
         </div>
       </tab>
       <tab name="Tasks">
-        UWU
+        <Task v-for="task in editing_object.tasks" :task="task"></Task>
       </tab>
     </tabs>
 </div>
@@ -147,6 +137,7 @@ details {
 <script type="module" src="{% static 'scripts/game_design.js' %}"></script>
 <script>
 set_nodes({{nodes|safe}})
+set_project({{project_dict|safe}})
 console.log({{nodes|safe}})
 </script>
 {% endcompress %}

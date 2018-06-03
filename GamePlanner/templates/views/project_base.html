@@ -91,18 +91,18 @@ font-weight: 500;
   <aside class="column is-2 is-narrow-mobile is-fullheight is-hidden-mobile aside">
    <ul class="menu-list">
      <li>
-       <a href="{% url 'project_summary' project.slug %}" class="">
+       <a href="{% url 'project_summary' project.slug %}" {% if request.resolver_match.url_name == 'project_summary' %}class="is-active"{% endif %}>
          <span class="icon"><i class="fa fa-home"></i></span> Project Summary
        </a>
      </li>
      <li>
-       <a href="#" class="">
+       <a href="{% url 'kanban' project.slug %}" {% if request.resolver_match.url_name == 'kanban' %}class="is-active"{% endif %}>
          <span class="icon"><i class="fa fa-th"></i></span> Kanban
        </a>
      </li>
      <li>
-       <a href="#" class="">
-         <span class="icon"><i class="fa fa-cog"></i></span> Administration
+       <a href="{% url 'game_design' project.slug %}" {% if request.resolver_match.url_name == 'game_design' %}class="is-active"{% endif %}>
+         <span class="icon"><i class="fa fa-sitemap"></i></span> Game Design
        </a>
      </li>
    </ul>

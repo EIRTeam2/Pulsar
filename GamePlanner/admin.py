@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Project, ProjectUserData, User, Task, Milestone, Category, DesignElement, Platform
+from .models import Project, ProjectUserData, User, Task, Milestone, Category, DesignElement, Platform, SubCategory, ElementType
 
 # Register your models here.
 admin.site.register(Project, admin.ModelAdmin)
@@ -8,5 +8,7 @@ admin.site.register(User, admin.ModelAdmin)
 admin.site.register(Task, admin.ModelAdmin)
 admin.site.register(Milestone, admin.ModelAdmin)
 admin.site.register(Category, admin.ModelAdmin)
+admin.site.register(SubCategory, admin.ModelAdmin)
 admin.site.register(DesignElement, admin.ModelAdmin)
 admin.site.register(Platform, admin.ModelAdmin)
+admin.site.register(ElementType, admin.ModelAdmin)

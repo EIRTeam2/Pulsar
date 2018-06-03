@@ -23,12 +23,20 @@ var app = new Vue({
     set_nodes: function(nodes) {
       for (var category_i in this.categories) {
         var category = this.categories[category_i]
-        var final_nodes = nodes.filter(x => x.fields.stage == category.name)
+        var final_nodes = nodes.filter(x => x.stage == category.name)
         category.nodes = final_nodes
       }
+    },
+    set_project: function(project) {
+
+      this.project = project
+      this.selected_milestone = this.project.milestones[0]
+      console.log("self:", this.project)
     }
   },
   data: {
+    project: {},
+    selected_milestone: [],
     categories: [
       {
         name: "PLANNED",
@@ -54,5 +62,11 @@ var app = new Vue({
   }
 })
 window.set_tasks = function (tasks) {
+  console.log(tasks)
   app.set_nodes(tasks)
+}
+
+window.set_project = function (project) {
+  console.log(project)
+  app.set_project(project)
 }
