@@ -7,6 +7,7 @@ from django.core import serializers
 
 import math
 import datetime
+
 class User(AbstractUser):
     bio = models.TextField(max_length=500, blank=True)
 
@@ -45,26 +46,28 @@ class Project(models.Model):
             print(self.name)
             unique_slugify(self, self.name)
         super(Project, self).save(*args,**kwargs)
-
-    def get_pending_tasks(self):
-        return self.tasks.all().exclude(stage=Task.COMPLETED)
-
-    def get_closed_tasks(self):
-        return self.tasks.filter(stage=Task.COMPLETED)
-    def get_estimated_cost(self):
+    @property
+    def pending_tasks(self):
+        return self.tasks.all().exclude(status=Task.COMPLETED)
+    @property
+    def closed_tasks(self):
+        return self.tasks.filter(status=Task.COMPLETED)
+    @property
+    def estimated_cost(self):
         cost = 0
         for task in self.tasks.all():
             cost += task.estimated_cost
         return cost
-
-    def get_final_cost(self):
+    @property
+    def final_cost(self):
         cost = 0
         for task in self.tasks.all():
             cost += task.final_cost
         return cost
 
-    def get_remaining_cost(self):
-        remaining_cost =  self.get_estimated_cost() - self.get_final_cost()
+    @property
+    def remaining_cost(self):
+        remaining_cost =  self.estimated_cost - self.final_cost
         if remaining_cost < 0:
             remaining_cost = 0
         return remaining_cost
@@ -86,18 +89,19 @@ class Project(models.Model):
                 final_string = "0h"
 
             return final_string.format(hours_string, minutes_string).strip()
-
-    def get_project_completion(self):
+    
+    @property
+    def project_completion(self):
         project_completion = 0.0
         for task in self.tasks.all():
-            if task.stage == task.COMPLETED:
+            if task.status == task.COMPLETED:
                 project_completion += 1.0
-
         if self.tasks.all().count() > 0:
             project_completion = project_completion / self.tasks.all().count()
         return project_completion
     def __str__(self):
         return self.name
+
 class Platform(models.Model):
     name = models.CharField(max_length=200)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="platforms", null=True, blank=True)
@@ -115,7 +119,7 @@ class Milestone(models.Model):
     def __str__(self):
         return self.name
 class ProjectUserData(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="project_users_data")
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="project_users_data")
     is_admin = models.BooleanField("Is an administrator", default=False)
     is_active = models.BooleanField("Is the user active", default=False)
@@ -164,7 +168,6 @@ class DesignElement(models.Model):
 
 
 class Task(models.Model):
-
     PLANNED = "PLANNED"
     IN_PROGRESS = "IN_PROGRESS"
     TESTING = "TESTING"
@@ -175,7 +178,6 @@ class Task(models.Model):
         (TESTING, 'Testing'),
         (COMPLETED, 'Completed'),
     )
-
     title = models.CharField(max_length=300)
     description = SimpleMDEField('Task Description')
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="tasks", blank=True, null=True)
@@ -193,11 +195,11 @@ class Task(models.Model):
     completion_date = models.DateTimeField('Completion date', null=True, blank=True)
     update_date = models.DateTimeField('Last update date', null=True, blank=True)
     assigned_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="assigned_tasks")
-    stage = models.CharField(max_length=200, choices=STAGE_CHOICES, default="PLANNED")
+    status = models.CharField(max_length=200, choices=STAGE_CHOICES, default="PLANNED")
 
     def serializable_object(self):
         obj = {'title': self.title, 'category': model_to_dict(self.category), 'description': self.description,
-                'estimated_cost': self.estimated_cost, 'final_cost': self.final_cost, 'stage': self.stage, 'id': self.pk,
+                'estimated_cost': self.estimated_cost, 'final_cost': self.final_cost, 'stage': self.status, 'id': self.pk,
                 'design_element': model_to_dict(self.design_element), 'sub_category': model_to_dict(self.sub_category),
                 'milestone': model_to_dict(self.milestone)}
 

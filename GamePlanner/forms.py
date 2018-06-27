@@ -10,7 +10,7 @@ class CreateProjectForm(forms.Form):
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ["title", "description", "project", "milestone", "category", "stage",
+        fields = ["title", "description", "project", "milestone", "category", "status",
         "platform", "estimated_cost", "final_cost", "due_date", "assigned_user", "design_element"]
     def __init__(self, *args, **kwargs):
         project = kwargs.pop('project')

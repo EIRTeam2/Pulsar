@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-
+import datetime
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -45,11 +45,29 @@ INSTALLED_APPS = [
     'tastypie',
     'simplemde',
     'compressor',
-    'compressor_toolkit'
+    'compressor_toolkit',
+    'rest_framework',
+    'corsheaders',
+    'django_filters'
 ]
 AUTH_USER_MODEL = 'GamePlanner.User'
 ACCOUNT_AUTHENTICATION_METHOD = 'username'
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
+}
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=30),
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer'
+}
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -71,6 +89,8 @@ COMPRESS_PRECOMPILERS = (
 )
 COMPRESS_ENABLED = True
 
+CORS_ORIGIN_ALLOW_ALL = DEBUG
+
 BOWER_COMPONENTS_ROOT = '/mnt/c/Users/EIREXE/EIRPlanner/components/'
 
 BOWER_PATH = '/usr/local/bin/bower'
@@ -80,12 +100,13 @@ BOWER_INSTALLED_APPS = (
     'jqTree',
     'showdown',
     'jquery.rest',
-    'simplemde'
+    'simplemde',
 )
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
